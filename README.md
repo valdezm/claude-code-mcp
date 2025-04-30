@@ -24,21 +24,22 @@ Cursor, Cline, Aider), but it occupies a unique point in the design space:
    then you can use your favorite IDE setup to review the changes and make
    further edits.
 
-## Getting started
 
-First, [install uv](https://docs.astral.sh/uv/getting-started/installation/)
-and [install
-git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git), if they
-are not installed already (on Windows, if you installed Git, I recommend
-rebooting).
+## Installation
 
-Then, in `claude_desktop_config.json`:
+First, install `uv` and install git, if they are not installed already (on Windows, if you installed Git, I recommend rebooting).
+
+## Configure codemcp in your Claude Desktop
+
+### For macOS/Linux
+
+Create or edit your `~/.config/anthropic/claude/claude_desktop_config.json` file and add the following:
 
 ```json
 {
   "mcpServers": {
     "codemcp": {
-      "command": "/Users/<username>/.local/bin/uvx",
+      "command": "/Users//.local/bin/uvx",
       "args": [
         "--from",
         "git+https://github.com/ezyang/codemcp@prod",
@@ -49,11 +50,66 @@ Then, in `claude_desktop_config.json`:
 }
 ```
 
-On Windows, double backslashes are necessary for the path:
+### For Windows
+
+Create or edit your `%USERPROFILE%\.anthropic\claude\claude_desktop_config.json` file and add the following:
+
+```json
+{
+  "mcpServers": {
+    "codemcp": {
+      "command": "C:\\Users\\\\.local\\bin\\uvx.exe",
+      "args": [
+        "--from",
+        "git+https://github.com/ezyang/codemcp@prod",
+        "codemcp"
+      ]
+    }
+  }
+}
+```
+
+### Using with WSL (recommended for Windows users)
+
+If you're using Windows Subsystem for Linux, you can configure codemcp to run within your WSL environment. This is useful if you prefer developing in a Linux environment while on Windows.
+
+Add the following configuration to your `claude_desktop_config.json` file:
+
+```json
+{
+	"mcpServers": {
+		"codemcp": {
+			"command": "wsl.exe",
+			"args": [
+				"bash",
+				"-c",
+				"/home/NameOfWSLUser/.local/bin/uvx --from git+https://github.com/ezyang/codemcp@prod codemcp"
+			]
+		}
+	}
+}
+```
+
+Replace `NameOfWSLUser` with your actual WSL username. This configuration runs the `uvx` command inside your WSL environment while allowing Claude Desktop to communicate with it.
+
+This configuration comes with the added benefit of being able to access your Linux filesystem directly. When initializing codemcp in Claude Desktop, you can use a path to your WSL project like:
 
 ```
-C:\\Users\\<username>\\.local\\bin\\uvx.exe
+Initialize codemcp with /home/NameOfWSLUser/project_in_wsl_to_work_on
 ```
+
+Make sure you have installed Python 3.12+ and uv within your WSL distribution. You might need to run the following commands in your WSL terminal:
+
+```bash
+# Install Python 3.12 (if not already installed)
+sudo apt update
+sudo apt install python3.12
+
+# Install uv
+curl -sSf https://astral.sh/uv/install.sh | sh
+```
+
+After configuring, restart Claude Desktop. The hammer icon should appear, indicating codemcp has loaded successfully.
 
 Restart the Claude Desktop app after modifying the JSON.  If the MCP
 successfully loaded, a hammer icon will appear and when you click it "codemcp"
@@ -90,7 +146,7 @@ Logs to look at the MCP logs, they're very helpful for debugging. The logs on
 Windows should be loaded `C:\Users\<user_name>\AppData\Roaming\Claude\logs`
 (replace `<user_name>` with your username.
 
-Pro tip: if on Windows, the logs say "Git executable not found. Ensure that
+Pro tip: if on Windows, _**try using the [WSL instructions](#using-with-wsl-recommended-for-windows-users) instead**_, but if you insist on using Windows directly: if the logs say "Git executable not found. Ensure that
 Git is installed and available", and you *just* installed Git, reboot your
 machine (the PATH update hasn't propagated.)  If this still doesn't work, open
 System Properties > Environment Variables > System variables > Path and ensure
